@@ -1,7 +1,9 @@
 USE_COLOR = true
+require "eventmachine"
 
 require "openssl"
-require "socket"
+require "base64"
+require "zlib"
 begin
   require "colorize"
 rescue LoadError

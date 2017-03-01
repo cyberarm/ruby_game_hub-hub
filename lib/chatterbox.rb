@@ -11,10 +11,7 @@ module RubyGameHub
       @host = host
       @port = port
 
-      @run_server = true
-      @server_running = false
-
-      @server = TCPServer.new(@host, @port)
+      @loop = nil
     end
 
     def log(string, level = "debug")
@@ -22,24 +19,23 @@ module RubyGameHub
     end
 
     def start
-      @server_running = true
       log("Starting server at #{@host} on #{@port}.")
-      while(@run_server) do
-        Thread.start(@server.accept) do |client|
-          client.puts "HI"
-
-          log("client address: #{client.remote_address.ip_address}")
-          log("Client data: #{client.gets}")
-          # client.close
-        end
+      EventMachine.run do |ev|
+        EventMachine.start_server(@host, @port, ChatterBox::Server)
+        @loop = ev
       end
+    end
 
-      @server_running = false
+    def reject(reason, socket)
+      socket.puts(reason)
+      socket.close
     end
 
     def stop
-      @run_server = false
       log("Stopping server...")
+      if EventMachine.reactor_running?
+        EventMachine.stop
+      end
     end
   end
 end
