@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    eventmachine (1.2.3-x86-mingw32)
+    msgpack (1.1.0-x86-mingw32)
+
+PLATFORMS
+  x86-mingw32
+
+DEPENDENCIES
+  eventmachine (~> 1.2.3)
+  msgpack
+
+BUNDLED WITH
+   1.13.6
