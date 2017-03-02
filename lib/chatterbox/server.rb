@@ -10,15 +10,16 @@ module RubyGameHub
       end
 
       def post_init
-        @clients = {}
-        @authentication = Authentication.new
-        log("Server started...")
+        @clients = RubyGameHub::Hub.instance.chatterbox.clients
+        @authentication = RubyGameHub::Hub.instance.chatterbox.authentication
       end
 
       def receive_data(data)
         data = data.chomp
         client = nil
         port, ip = Socket.unpack_sockaddr_in(get_peername)
+        @ip = ip
+        @port = port
 
         if @clients[ip]
           if @clients[ip][port]
@@ -49,6 +50,8 @@ module RubyGameHub
             log_and_send(e)
             close_connection
           end
+        elsif data == Proto::API_DISCONNECT
+          close_connection
         else
           log("Got unprocessable data: #{data}", "warn")
         end
@@ -71,13 +74,9 @@ module RubyGameHub
         Client.new(hash)
       end
 
-      def compress_for_transport(string)
-        log(string, "fail")
-        c = Zlib::Deflate.deflate(string)
-        p c
-        # s = Base64.encode64(c)
-        # p s
-        return c
+      def log_and_send(string, level = "debug")
+        log(string, level)
+        send_data(string)
       end
 
       def compress_for_transport(string)
@@ -93,7 +92,8 @@ module RubyGameHub
       end
 
       def unbind
-        log("Disconnect")
+        @clients[@ip][@port] =  nil
+        log("Client disconnected.")
       end
     end
   end

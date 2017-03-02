@@ -37,6 +37,7 @@ else
 end
 @remote_publickey = OpenSSL::PKey::RSA.new uncompress_from_transport(hub_key.last)
 p @remote_publickey.public?
+@socket.puts API_DISCONNECT
 puts  "Complete"
 
 @socket.close

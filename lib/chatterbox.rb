@@ -5,13 +5,16 @@ module RubyGameHub
     TAG = "ChatterBox"
     TAG_COLOR = :green
 
-    attr_reader :host, :port, :server
+    attr_reader :host, :port, :server, :clients, :authentication
 
     def initialize(host, port)
       @host = host
       @port = port
 
       @loop = nil
+
+      @clients = {}
+      @authentication = Authentication.new
     end
 
     def log(string, level = "debug")
