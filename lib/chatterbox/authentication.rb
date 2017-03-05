@@ -31,6 +31,10 @@ module RubyGameHub
         @keypair.public_key
       end
 
+      def pair
+        @keypair
+      end
+
       def sign(data)
         @keypair.sign(@digest, data)
       end

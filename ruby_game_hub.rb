@@ -3,6 +3,7 @@ require "eventmachine"
 
 require "openssl"
 require "base64"
+require "uri"
 require "zlib"
 begin
   require "colorize"

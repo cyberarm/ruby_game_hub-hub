@@ -45,13 +45,17 @@ module RubyGameHub
             client.hash[:public_key] = OpenSSL::PKey::RSA.new(api_public_key_string)
             client.hash[:sent_key] = true
 
-            send_data("#{Proto::HUB_PUBLIC_KEY}:#{compress_for_transport(@authentication.public_key.to_pem)}\n")
+            send_data("#{Proto::HUB_PUBLIC_KEY}:#{compress_for_transport(@authentication.public_key.to_der)}\n")
           rescue => e
             log_and_send(e)
             close_connection
           end
         elsif data == Proto::API_DISCONNECT
           close_connection
+        elsif data.split(":").first == "VERIFY"
+          p("Data: "+uncompress_from_transport(data.split(":").last))
+          log(uncompress_from_transport(@authentication.pair.private_decrypt(data.split(":").last)))
+          log("Am I an idiot?")
         else
           log("Got unprocessable data: #{data}", "warn")
         end
@@ -80,15 +84,11 @@ module RubyGameHub
       end
 
       def compress_for_transport(string)
-        c = Zlib::Deflate.deflate(string)
-        s = Base64.strict_encode64(c)
-        return s
+        Base64.strict_encode64(string)
       end
 
       def uncompress_from_transport(string)
-        s = Base64.strict_decode64(string)
-        c = Zlib::Inflate.inflate(s)
-        return c
+        Base64.strict_decode64(string)
       end
 
       def unbind
